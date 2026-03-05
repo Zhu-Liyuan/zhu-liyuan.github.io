@@ -240,6 +240,44 @@
           <div class="columns is-centered has-text-centered">
             <div class="column is-five-fifths">
               <div class="">
+                <h3 class="title is-4 section-title">Artifact Simulation</h3>
+                <p class="has-text-left mb-4">
+                  A key factor in training a generalizable rendering refinement model is a comprehensive data generation pipeline that accurately mimics the diverse artifacts observed in the real world.
+                  We construct paired videos of <em>ground-truth</em> and <em>corrupted</em> renderings by rendering each scene from two versions of its 3DGS reconstruction: a <em>high-quality</em> model from dense inputs and a <em>corrupted</em> one with degradation.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; text-align: left;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎞️</div>
+                    <strong>Sparse-View Simulation</strong>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #475569;">We randomly retain only 5% of the original video frames to simulate under-sampled captures. This random downsampling introduces temporal irregularity that better reflects real-world conditions.</p>
+                  </div>
+                  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; text-align: left;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔀</div>
+                    <strong>Diverse Initialization</strong>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #475569;">We apply multiple 3D Gaussian initialization strategies, including SfM point initialization, random 3D point cloud initialization, and dense point maps from MapAnything.</p>
+                  </div>
+                  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; text-align: left;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎥</div>
+                    <strong>Paired Reconstruction with New Trajectories</strong>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #475569;">A <em>clean splat</em> model is trained on all views, while a <em>corrupted</em> model uses the sparse subset with fewer optimization steps. Novel camera paths synthesize realistic motion artifacts.</p>
+                  </div>
+                  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; text-align: left;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚡</div>
+                    <strong>Feed-forward Degradation</strong>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #475569;">We render degraded videos using Gaussians from a pretrained feed-forward 3DGS model, introducing geometric inconsistencies, color shifts, and semi-transparent splats.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section soft-section" style="margin-top: 2rem;">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered has-text-centered">
+            <div class="column is-five-fifths">
+              <div class="">
                 <h3 class="title is-4 section-title">Novel-View Refinement</h3>
                 <div class="content has-text-centered">
                   <div class="buttons is-centered mb-4">
