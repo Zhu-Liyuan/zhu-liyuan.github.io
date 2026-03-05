@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="description"
+    content="GaussFusion: Improving 3D Reconstruction in the Wild with Geometry-Informed Video Generator" />
+  <meta name="keywords" content="3D reconstruction, gaussian splatting, video generation, computer vision, cvpr" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+  <title>GaussFusion: Improving 3D Reconstruction in the Wild with Geometry-Informed Video Generator</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>" />
+
+  <!-- Google tag (gtag.js) - Removed for anonymous submission -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./css/bulma.min.css" />
+  <link rel="stylesheet" href="./css/bulma-carousel.min.css" />
+  <link rel="stylesheet" href="./css/bulma-slider.min.css" />
+  <link rel="stylesheet" href="./css/twentytwenty.css" />
+  <link rel="stylesheet" href="./css/jquery-ui.min.css" />
+  <link rel="stylesheet" href="./css/index-v5.css" />
+  <link rel="stylesheet" href="./css/pages.css" />
+
+  <script type="importmap">
+        {
+            "imports": {
+                "three": "./js/three.module.js",
+                "PCDLoader": "./js/PCDLoader.js",
+                "OrbitControls": "./js/OrbitControls.js"
+            }
+        }
+    </script>
+
+  <script src="./js/jquery-3.2.1.min.js"></script>
+  <script src="./js/jquery.event.move.js"></script>
+  <script src="./js/jquery.twentytwenty.js"></script>
+  <script src="./js/jquery-ui.js"></script>
+  <script src="./js/bulma-carousel.min.js"></script>
+  <script src="./js/bulma-slider.min.js"></script>
+  <script src="./js/fontawesome.all.min.js"></script>
+  <script src="./js/pcd-viewer-v5.js" type="module"></script>
+  <script type="module" src="https://esm.sh/gifuct-js@2.1.2"></script>
+  <script src="./js/slider.js" type="module"></script>
+  <script src="./js/video_comparison.js"></script>
+  <script src="./js/novel_view_comparison.js"></script>
+  <script src="./js/ff_comparison.js"></script>
+
+  <!--MathJax-->
+  <script>
+    window.MathJax = {
+      loader: { load: ['[tex]/boldsymbol'] },
+      tex: {
+        inlineMath: [
+          ["$", "$"],
+          ["\\(", "\\)"],
+        ],
+        packages: { '[+]': ['boldsymbol'] }
+      },
+      svg: {
+        fontCache: "global",
+      },
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+  <section class="hero is-landing">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="landing-card">
+          <div class="landing-intro">
+            <h1 class="title is-3 publication-title">
+              GaussFusion: Improving 3D Reconstruction in the Wild with <br />
+              Geometry-Informed Video Generator
+            </h1>
+          </div>
+          <div class="authors-block" style="margin-top: 0.5rem;">
+            <div class="authors-list" style="font-size: 0.95rem; flex-wrap: nowrap; gap: 0.65rem 0.8rem;">
+              <span class="author">Liyuan Zhu<sup>1</sup></span>&nbsp;
+              <span class="author">Manjunath Narayana<sup>2</sup></span>&nbsp;
+              <span class="author">Michal Stary<sup>2</sup></span>&nbsp;
+              <span class="author">Will Hutchcroft<sup>2</sup></span>&nbsp;
+              <span class="author">Gordon Wetzstein<sup>1</sup></span>&nbsp;
+              <span class="author">Iro Armeni<sup>1</sup></span>
+            </div>
+            <div class="authors-affiliations" style="margin-top: 0.25rem; font-size: 0.9rem;">
+              <span><sup>1</sup>Stanford University &nbsp; <sup>2</sup>Zillow Group</span>
+            </div>
+            <div class="authors-affiliations" style="margin-top: 0.75rem;">
+              <span class="tag is-info is-light" style="font-size: 1.1rem; padding: 0.5rem 1.2rem;">CVPR 2026</span>
+            </div>
+          </div>
+          <div class="container is-max-desktop has-text-centered" style="margin-top: 1rem; margin-bottom: 1rem;">
+            <video id="teaser" autoplay muted loop playsinline controls width="100%">
+              <source src="./videos/teaser_video.mp4" type="video/mp4">
+            </video>
+            <div class="columns is-centered is-mobile" style="margin-top: 0.25rem;">
+              <div class="column is-half has-text-centered">
+                <p class="is-size-6">Input</p>
+              </div>
+              <div class="column is-half has-text-centered">
+                <p class="is-size-6">Output</p>
+              </div>
+            </div>
+          </div>
+          <div class="tldr-card">
+            <p class="has-text-centered">Improving 3DGS reconstructions with an <span class="emph">efficient,
+                geometry-informed</span> video generator.</p>
+          </div>
+          <!-- <div class="tldr-card">
+              <strong>TL;DR:</strong>
+              A point cloud generative model that turns unposed parts into assembled shapes.
+            </div> -->
+        </div>
+        <div class="page-stack">
+
+
+
+          <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-five-fifths">
+                <div class="">
+                  <h3 class="title is-4 section-title">Abstract</h3>
+                  <div class="has-text-left">
+                    <p>
+                      We present <span class="methodname">GaussFusion</span>, a novel approach for improving 3D
+                      Gaussian splatting (3DGS) reconstructions in the wild through geometry-informed video
+                      generation.
+                      <span class="methodname">GaussFusion</span> mitigates common 3DGS artifacts, including floaters,
+                      flickering, and blur caused by camera pose errors, incomplete coverage, and noisy geometry
+                      initialization.
+                      Unlike prior RGB-based approaches limited to a single reconstruction pipeline, our method
+                      introduces a geometry-informed video-to-video generator that refines 3DGS renderings across both
+                      optimization-based and feed-forward methods.
+                      Given an existing reconstruction, we render a Gaussian primitives video buffer encoding depth,
+                      normals, opacity, and covariance, which the generator refines to produce temporally coherent,
+                      artifact-free frames.
+                      We further introduce an artifact synthesis pipeline that simulates diverse degradation patterns,
+                      ensuring robustness and generalization.
+                      <span class="methodname">GaussFusion</span> achieves state-of-the-art performance on novel view
+                      synthesis benchmarks, and an efficient variant runs in real time at 16 FPS while maintaining
+                      similar performance, enabling interactive 3D applications.
+                      We plan to release our code and model.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section soft-section" style="margin-top: 2rem;">
+          <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-five-fifths">
+                <div class="">
+                  <h3 class="title is-4 section-title">Method</h3>
+                  <div class="columns is-centered has-text-centered" style="margin-top: 1rem;"></div>
+                  <div class="column is-fullwidth">
+                    <div class="publication-teaser">
+                      <img src="images/architecture.png" alt="Method architecture figure"
+                        class="publication-teaser-img framed-image" style="width: 100%;">
+                    </div>
+                  </div>
+                  <div class="has-text-left mb-2">
+                    <p>
+                      <strong>GaussFusion Video Generator Architecture.</strong> Our model refines video
+                      latents using geometry-aware conditioning derived from 3D Gaussian splatting (3DGS). A Gaussian
+                      primitive buffer—comprising color, depth, normals, and uncertainty—is first encoded via a VAE and
+                      projected by a 3D convolution into a compact latent \(\mathbf{z}_{\mathcal{G}}\). The noised video
+                      latents are processed by a flow transformer built upon DiT blocks, interleaved with <em>Geometry
+                        Adapter</em> (GA) blocks. Each GA block fuses geometry features through self-attention and
+                      integrates textual scene descriptions via cross-attention, producing a geometry-aware feature
+                      \(\mathbf{x}_{\mathcal{G}}\) that modulates the video latent \(\mathbf{x}\). The model predicts
+                      the flow velocity \(v_\theta(x_t, t)\), which is integrated to recover refined video frames
+                      decoded by the VAE.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section soft-section" style="margin-top: 2rem;">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered has-text-centered">
+            <div class="column is-five-fifths">
+              <div class="">
+                <h3 class="title is-4 section-title">Multi-modal input (GP-buffer)</h3>
+                <div class="content has-text-centered">
+                  <div class="buttons is-centered mb-4">
+                    <button class="button gp-scene-btn is-info is-active" data-scene="1">Example 1</button>
+                    <button class="button gp-scene-btn" data-scene="2">Example 2</button>
+                    <button class="button gp-scene-btn" data-scene="3">Example 3</button>
+                  </div>
+
+                  <div class="buttons is-centered mb-4 are-small">
+                    <button class="button" id="gp-play-pause">
+                      <span class="icon is-small">
+                        <i class="fas fa-pause"></i>
+                      </span>
+                    </button>
+                    <button class="button" id="gp-fullscreen">
+                      <span class="icon is-small">
+                        <i class="fas fa-expand"></i>
+                      </span>
+                      <span>Full Screen</span>
+                    </button>
+                  </div>
+
+                  <div class="video-container"
+                    style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">
+                    <video id="gp-buffer-video" autoplay muted loop playsinline
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                      <source
+                        src="./videos/gp-buffer/0a485338bbdaf19ba9090b874bb36ef0599a9c9a475a382c22903cf5981c6ea6/grid_visualization.mp4"
+                        type="video/mp4">
+                    </video>
+                  </div>
+                  <p class="is-size-6 has-text-centered mt-2">
+                    Visualization of the multi-modal input (GP-buffer) used by our model and our prediction.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section soft-section" style="margin-top: 2rem;">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered has-text-centered">
+            <div class="column is-five-fifths">
+              <div class="">
+                <h3 class="title is-4 section-title">Novel-View Refinement</h3>
+                <div class="content has-text-centered">
+                  <div class="buttons is-centered mb-4">
+                    <button class="button scene-btn is-info is-active" data-scene="1">Example 1</button>
+                    <button class="button scene-btn" data-scene="2">Example 2</button>
+                    <button class="button scene-btn" data-scene="3">Example 3</button>
+                    <button class="button scene-btn" data-scene="4">Example 4</button>
+                    <button class="button scene-btn" data-scene="5">Example 5</button>
+                  </div>
+
+                  <div class="buttons is-centered mb-4 are-small">
+                    <button class="button" id="novel-play-pause">
+                      <span class="icon is-small">
+                        <i class="fas fa-pause"></i>
+                      </span>
+                    </button>
+                    <button class="button" id="novel-fullscreen">
+                      <span class="icon is-small">
+                        <i class="fas fa-expand"></i>
+                      </span>
+                      <span>Full Screen</span>
+                    </button>
+                  </div>
+
+                  <div class="video-container"
+                    style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">
+                    <video id="novel-view-video" autoplay muted loop playsinline
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                      <source src="./videos/comparison/wholefoods/grid_comparison.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                  <p class="is-size-6 has-text-centered mt-2">
+                    Comparison of novel-view synthesis results against baseline methods.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section soft-section" style="margin-top: 2rem;">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered has-text-centered">
+            <div class="column is-five-fifths">
+              <div class="">
+                <h3 class="title is-4 section-title">Refining Feed-forward reconstructions</h3>
+                <div class="content has-text-centered">
+                  <div class="buttons is-centered mb-4">
+                    <button class="button ff-scene-btn is-info is-active" data-scene="1">Example 1</button>
+                    <button class="button ff-scene-btn" data-scene="2">Example 2</button>
+                    <button class="button ff-scene-btn" data-scene="3">Example 3</button>
+                    <button class="button ff-scene-btn" data-scene="4">Example 4</button>
+                    <button class="button ff-scene-btn" data-scene="5">Example 5</button>
+                  </div>
+
+                  <div class="buttons is-centered mb-4 are-small">
+                    <button class="button" id="ff-play-pause">
+                      <span class="icon is-small">
+                        <i class="fas fa-pause"></i>
+                      </span>
+                    </button>
+                    <button class="button" id="ff-fullscreen">
+                      <span class="icon is-small">
+                        <i class="fas fa-expand"></i>
+                      </span>
+                      <span>Full Screen</span>
+                    </button>
+                  </div>
+
+                  <div class="video-container"
+                    style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">
+                    <video id="ff-comparison-video" autoplay muted loop playsinline
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                      <source src="./videos/FF_comparison/000db54a47db43fe/grid_comparison.mp4" type="video/mp4">
+                    </video>
+                  </div>
+                  <p class="is-size-6 has-text-centered mt-2">
+                    Comparison of feed-forward reconstruction refinement from DepthSplat input.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="section soft-section" style="margin-top: 2rem;">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered has-text-centered">
+            <div class="column is-five-fifths">
+              <div class="">
+                <h3 class="title is-4 section-title">Inference Efficiency Comparison</h3>
+                <div class="content has-text-centered">
+                  <div style="max-width: 800px; margin: 0 auto;">
+                    <canvas id="performanceChart"></canvas>
+                  </div>
+                  <p class="is-size-6 has-text-centered mt-2">
+                    Comparison of inference speed (FPS) against baseline methods.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    </div>
+
+    </div>
+    </div>
+    </div>
+  </section>
+
+
+  <section class="section" style="padding-top: 2rem; padding-bottom: 2rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-five-fifths">
+          <h3 class="title is-4 section-title">BibTeX</h3>
+          <pre style="text-align: left; background: #f5f5f5; padding: 1.25rem; border-radius: 6px; font-size: 0.85rem; overflow-x: auto;"><code>@inproceedings{zhu2026gaussfusion,
+  title     = {GaussFusion: Improving 3D Reconstruction in the Wild with Geometry-Informed Video Generator},
+  author    = {Zhu, Liyuan and Narayana, Manjunath and Stary, Michal and Hutchcroft, Will and Wetzstein, Gordon and Armeni, Iro},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2026}
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer pt-4 pb-0">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content has-text-centered">
+            <p>
+              Website template based on
+              <a href="https://github.com/nerfies/nerfies.github.io">
+                Nerfies
+              </a>
+              and licensed under
+              <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+                CC-BY-SA-4.0 </a>.
+            </p>
+          </div>
+          <div style="display: none;">
+            <script type="text/javascript" id="clustrmaps"
+              src="//cdn.clustrmaps.com/map_v2.js?cl=ffffff&w=70&t=n&d=6WCwDMU1LnufigbJtLnJnd3NXofUi6tlIPZD58PdhFg&co=ffffff&cmo=ffffff&cmn=ffffff&ct=ffffff"></script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./js/slider.js" type="module"></script>
+  <script src="./js/novel_view_comparison.js"></script>
+  <script src="./js/ff_comparison.js"></script>
+  <script src="./js/performance_chart.js"></script>
+  <script src="./js/gp_buffer_comparison.js"></script>
+</body>
+
+</html>
