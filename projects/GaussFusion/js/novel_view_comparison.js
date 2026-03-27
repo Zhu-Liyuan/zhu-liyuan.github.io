@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Scene Map
     const sceneMap = {
-        '1': 'wholefoods',
+        '1': 'b6d1134cb03c855d246f916beaa2d3d01290cf47937a5176011ff39b850ec615',
         '2': '01842c6b21e1d679',
         '3': '0278b3d8abd9654d',
-        '4': 'b6d1134cb03c855d246f916beaa2d3d01290cf47937a5176011ff39b850ec615',
+        '4': 'wholefoods',
         '5': 'e9360e7a89bee835dc847cf8796093e634b759ff582558788dcfe8326f6e8901'
     };
 
